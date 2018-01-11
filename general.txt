@@ -1,0 +1,5 @@
+Introduction to Scripting in Python
+Rice University 
+	PPE: Python Programming Essentials 
+	PDR: Python Data Representations 
+	PDA: Python Data Analysis 
