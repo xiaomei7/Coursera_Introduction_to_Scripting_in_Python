@@ -28,7 +28,13 @@ def read_csv_file(file_name):
     Output: Lists of lists consisting of the fields in the CSV file
     """
        
-    return []
+    with open(file_name, newline='') as csvfile:
+        csv_table = []
+        listreader = csv.reader(csvfile)
+        for row in listreader:
+            csv_table.append(row)
+
+    return csv_table
 
 
 
@@ -38,7 +44,10 @@ def write_csv_file(csv_table, file_name):
     Action: Write fields in csv_table into a comma-separated CSV file with the name file_name
     """
     
-    pass
+    with open(file_name, 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+        for row in csv_table:
+            csv_writer.writerow(row)
 
         
 def test_part1_code():
@@ -57,6 +66,7 @@ def test_part1_code():
     cancer_risk_copy = read_csv_file("cancer_risk05_v4_county_copy.csv")
     
     # Test whether two tables are the same
+    print(cancer_risk_table == cancer_risk_copy)
 
 test_part1_code()
 
