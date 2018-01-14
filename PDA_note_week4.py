@@ -133,3 +133,27 @@ print("tuples after sorted:", datatups)
 print("returned from sorted:", newdata)
 
 print(SPLIT)
+
+"""
+Tests for the final project
+"""
+
+my_dict = {'Tom': {'player': 'Tom', 'hits': 1, 'homers': 2},
+		   'Jack': {'player': 'Jack', 'hits': 3, 'homers': 4}}
+
+for key, value in my_dict.items():
+	print(key, value)
+
+my_list_dict = []
+
+for key in my_dict:
+	my_list_dict.append(my_dict[key])
+
+for row in my_list_dict:
+	print(row)
+
+print(my_list_dict)
+
+print(SPLIT)
+
+

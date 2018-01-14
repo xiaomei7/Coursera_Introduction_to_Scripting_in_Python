@@ -4,6 +4,7 @@ Processing CSV files with baseball stastics.
 
 Be sure to read the project description page for further information
 about the expected behavior of the program.
+https://www.coursera.org/learn/python-analysis/supplement/Adoj3/project-description-analyzing-baseball-data
 """
 
 import csv
@@ -121,7 +122,13 @@ def filter_by_year(statistics, year, yearid):
       Returns a list of batting statistics dictionaries that
       are from the input year.
     """
-    return []
+    new_list = []
+
+    for row in statistics:
+        if row[yearid] == str(year):
+            new_list.append(row)
+
+    return new_list
 
 
 def top_player_ids(info, statistics, formula, numplayers):
@@ -138,7 +145,16 @@ def top_player_ids(info, statistics, formula, numplayers):
       computed by formula, of the top numplayers players sorted in
       decreasing order of the computed statistic.
     """
-    return []
+    player_id_list = []
+    compound_statistic = []
+    for row in statistics:
+        player_id_list.append(row[info["playerid"]])
+        compound_statistic.append(formula(info, row))
+
+    player_statistic = zip(player_id_list, compound_statistic)
+    sorted_player_statistic = sorted(player_statistic, key=lambda pair: pair[1], reverse=True)
+
+    return sorted_player_statistic[:numplayers]
 
 
 def lookup_player_names(info, top_ids_and_stats):
@@ -153,7 +169,25 @@ def lookup_player_names(info, top_ids_and_stats):
       the input and "FirstName LastName" is the name of the player
       corresponding to the player ID in the input.
     """
-    return []
+    computed_statistics = 0.0
+    connecter = "---"
+    first_name = ""
+    last_name = ""
+
+    new_list = []
+
+    master_dict = read_csv_as_nested_dict(
+        info["masterfile"], info["playerid"], info["separator"], info["quote"])
+
+    for item in top_ids_and_stats:
+        computed_statistics = item[1]
+        first_name = master_dict[item[0]][info["firstname"]]
+        last_name = master_dict[item[0]][info["lastname"]]
+        final_str = "{:.3f} {} {} {}" .format(
+            computed_statistics, connecter, first_name, last_name)
+        new_list.append(final_str)
+
+    return new_list
 
 
 def compute_top_stats_year(info, formula, numplayers, year):
@@ -169,7 +203,17 @@ def compute_top_stats_year(info, formula, numplayers, year):
       Returns a list of strings for the top numplayers in the given year
       according to the given formula.
     """
-    return []
+    # get the year's data
+    bat_list = read_csv_as_list_dict(info["battingfile"], info["separator"], info["quote"])
+    bat_list_by_year = filter_by_year(bat_list, year, info["yearid"])
+
+    # find the top players by id in that year
+    top_playerid_by_year = top_player_ids(info, bat_list_by_year, formula, numplayers)
+
+    # find the top players by name in that year
+    top_playername_by_year = lookup_player_names(info, top_playerid_by_year)
+
+    return top_playername_by_year
 
 
 ##
@@ -187,7 +231,23 @@ def aggregate_by_player_id(statistics, playerid, fields):
       are dictionaries of aggregated stats.  Only the fields from the fields
       input will be aggregated in the aggregated stats dictionaries.
     """
-    return {}
+    # create a dictionary to add aggregated information
+    aggregated_dict = {}
+
+    # check rows in statistics, and add players into THE dictionary
+    for row in statistics:
+        if row[playerid] not in aggregated_dict:
+            aggregated_dict[row[playerid]] = {}
+            aggregated_dict[row[playerid]][playerid] = row[playerid]
+
+            for item in fields:
+                aggregated_dict[row[playerid]][item] = float(row[item])
+        else:
+            # update the data
+            for item in fields:
+                aggregated_dict[row[playerid]][item] += float(row[item])
+
+    return aggregated_dict
 
 
 def compute_top_stats_career(info, formula, numplayers):
@@ -199,7 +259,22 @@ def compute_top_stats_career(info, formula, numplayers):
                     computes a compound statistic
       numplayers  - Number of top players to return
     """
-    return []
+    # get the career's data
+    bat_list = read_csv_as_list_dict(info["battingfile"], info["separator"], info["quote"])
+    bat_dict_by_career = aggregate_by_player_id(bat_list, info["playerid"], info["battingfields"])
+
+    #convert the bat_list_by_career {{}} to [{}]
+    bat_list_dict = []
+    for key in bat_dict_by_career:
+        bat_list_dict.append(bat_dict_by_career[key])
+
+    # find the top players by id in that year
+    top_playerid_by_career = top_player_ids(info, bat_list_dict, formula, numplayers)
+
+    # find the top players by name in that year
+    top_playername_by_career = lookup_player_names(info, top_playerid_by_career)
+
+    return top_playername_by_career
 
 
 ##
@@ -273,7 +348,15 @@ def test_baseball_statistics():
     print("")
 
 
+
 # Make sure the following call to test_baseball_statistics is
 # commented out when submitting to OwlTest/CourseraTest.
 
 # test_baseball_statistics()
+
+# bat_list = read_csv_as_list_dict("batting1.csv", ",", '"')
+
+# result_table = aggregate_by_player_id(bat_list, "player", ["hits", "homers"])
+
+# for key, value in result_table.items():
+#     print(key, value)
